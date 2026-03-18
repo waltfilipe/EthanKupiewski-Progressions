@@ -159,7 +159,7 @@ with col2:
     video_path = os.path.join("videos", video_file)
 
     if os.path.exists(video_path):
-        col1, col2, col3 = st.columns([1,2,1])
+        col1, col2, col3 = st.columns([2,1,2])
 
         with col2:
             st.video(video_path)
