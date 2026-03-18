@@ -127,7 +127,7 @@ with col1:
 with col2:
     st.subheader(f"Progression {evento_selecionado}")
 
-    video_path = f"videos/evento_{evento_selecionado}.mp4"
+    video_path = f"videos/Progression {evento_selecionado + 1} LOW.mp4"
 
     if os.path.exists(video_path):
         st.video(video_path)
