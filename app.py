@@ -127,8 +127,6 @@ with col1:
 # Vídeo
 # ==========================
 with col2:
-    st.subheader(f"Progression {evento_selecionado}")
-
     video_map = {
     0: "Progression 1 LOW.mp4",
     1: "Progression 2 LOW.mp4",
