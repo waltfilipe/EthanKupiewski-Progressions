@@ -32,7 +32,6 @@ for i in range(0, len(coords), 3):
 
     dados.append({
         "id": i // 3,
-        "label": f"Progression {i // 3}",
         "x_start": start[0],
         "y_start": start[1],
         "x_carry_end": carry_end[0],
@@ -44,31 +43,34 @@ for i in range(0, len(coords), 3):
 df = pd.DataFrame(dados)
 
 # ==========================
-# SELECTOR
+# SELECTOR (SEM REDUNDÂNCIA)
 # ==========================
-def ordinal(n):
-    return ["1st", "2nd", "3rd"][n-1] if n <= 3 else f"{n}th"
+options = [0, 1, 2, 3]  # só 4 opções
+
+labels = {
+    0: "1st Progression",
+    1: "2nd Progression",
+    2: "3rd Progression",
+    3: "4th & 5th Progressions"
+}
 
 evento_selecionado = st.selectbox(
     "Select the Progression",
-    df["id"],
-    format_func=lambda x: (
-        "4th & 5th Progressions" if x in [3, 4]
-        else f"{ordinal(x+1)} Progression"
-    )
+    options,
+    format_func=lambda x: labels[x]
 )
 
 # ==========================
-# MAPA DE SELEÇÃO (AGRUPAMENTO)
+# MAPA DE SELEÇÃO
 # ==========================
 selection_map = {
     0: [0],
     1: [1],
     2: [2],
-    3: [3, 4]  # 4th e 5th juntas  # garante comportamento igual
+    3: [3, 4],  # agrupado
 }
 
-selected_ids = selection_map.get(evento_selecionado, [evento_selecionado])
+selected_ids = selection_map[evento_selecionado]
 
 # ==========================
 # Função para desenhar campo
@@ -111,7 +113,7 @@ def draw_pitch(df, selected_ids):
             ax=ax
         )
 
-    # pontos dos eventos selecionados
+    # pontos destacados
     selected = df[df["id"].isin(selected_ids)]
 
     pitch.scatter(
@@ -147,7 +149,7 @@ with col2:
         0: "Progression 1 LOW.mp4",
         1: "Progression 2 LOW.mp4",
         2: "Progression 3 LOW.mp4",
-        3: "Progression 4 LOW.mp4",
+        3: "Progression 4 LOW.mp4",  # pode manter 1 vídeo ou depois evoluir pra 2
     }
 
     video_file = video_map.get(evento_selecionado)
