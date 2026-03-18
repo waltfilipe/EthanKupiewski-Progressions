@@ -65,8 +65,7 @@ selection_map = {
     0: [0],
     1: [1],
     2: [2],
-    3: [3, 4],  # 4th e 5th juntas
-    4: [3, 4],  # garante comportamento igual
+    3: [3, 4]  # 4th e 5th juntas  # garante comportamento igual
 }
 
 selected_ids = selection_map.get(evento_selecionado, [evento_selecionado])
@@ -149,7 +148,6 @@ with col2:
         1: "Progression 2 LOW.mp4",
         2: "Progression 3 LOW.mp4",
         3: "Progression 4 LOW.mp4",
-        4: "Progression 4 LOW.mp4",
     }
 
     video_file = video_map.get(evento_selecionado)
