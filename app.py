@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from mplsoccer import Pitch
 import pandas as pd
 import numpy as np
-from streamlit_image_coordinates import streamlit_image_coordinates
 from io import BytesIO
 import os
 
@@ -33,6 +32,7 @@ for i in range(0, len(coords), 3):
 
     dados.append({
         "id": i // 3,
+        "label": f"Progression {i // 3}",
         "x_start": start[0],
         "y_start": start[1],
         "x_carry_end": carry_end[0],
@@ -44,9 +44,18 @@ for i in range(0, len(coords), 3):
 df = pd.DataFrame(dados)
 
 # ==========================
+# SELECTOR
+# ==========================
+evento_selecionado = st.selectbox(
+    "Selecione a Progression",
+    df["id"],
+    format_func=lambda x: f"Progression {x}"
+)
+
+# ==========================
 # Função para desenhar campo
 # ==========================
-def draw_pitch(df):
+def draw_pitch(df, selected_id):
     pitch = Pitch(
         pitch_type='statsbomb',
         pitch_color='#f5f5f5',
@@ -57,14 +66,16 @@ def draw_pitch(df):
 
     for _, row in df.iterrows():
 
+        is_selected = row["id"] == selected_id
+
         # condução
         pitch.lines(
             row.x_start,
             row.y_start,
             row.x_carry_end,
             row.y_carry_end,
-            color=(0.2, 0.2, 0.2, 0.4),
-            lw=1.8,
+            color=(0, 0, 0, 0.2) if not is_selected else (0, 0, 0, 0.8),
+            lw=1.5 if not is_selected else 3,
             linestyle='dotted',
             ax=ax
         )
@@ -75,65 +86,50 @@ def draw_pitch(df):
             row.y_carry_end,
             row.x_pass_end,
             row.y_pass_end,
-            color=(0.6, 0.9, 0.6, 0.9),
-            width=2.2,
+            color=(0.6, 0.9, 0.6, 0.3) if not is_selected else (0.1, 0.8, 0.1, 1),
+            width=2 if not is_selected else 3,
             headwidth=4,
             headlength=4,
             ax=ax
         )
 
-    # pontos clicáveis (importante!)
-    pitch.scatter(df.x_carry_end, df.y_carry_end, color='red', s=40, ax=ax, zorder=5)
+    # ponto do evento selecionado
+    selected = df[df["id"] == selected_id]
+
+    pitch.scatter(
+        selected.x_carry_end,
+        selected.y_carry_end,
+        color='red',
+        s=80,
+        ax=ax,
+        zorder=5
+    )
 
     return fig
 
 # ==========================
-# Converter figura → imagem
+# Layout
 # ==========================
-fig = draw_pitch(df)
-
-buf = BytesIO()
-fig.savefig(buf, format="png", dpi=200, bbox_inches="tight")
-buf.seek(0)
-
-# ==========================
-# Clique na imagem
-# ==========================
-coords_click = streamlit_image_coordinates(buf)
-
 col1, col2 = st.columns([2,1])
 
 with col1:
+    fig = draw_pitch(df, evento_selecionado)
+
+    buf = BytesIO()
+    fig.savefig(buf, format="png", dpi=200, bbox_inches="tight")
+    buf.seek(0)
+
     st.image(buf)
 
 # ==========================
-# Encontrar evento clicado
+# Vídeo
 # ==========================
-if coords_click is not None:
+with col2:
+    st.subheader(f"Progression {evento_selecionado}")
 
-    x_click = coords_click["x"]
-    y_click = coords_click["y"]
+    video_path = f"videos/evento_{evento_selecionado}.mp4"
 
-    # converter pixel → coordenada do campo
-    # ajuste fino pode ser necessário dependendo do tamanho
-    x_norm = x_click / 1000 * 120
-    y_norm = y_click / 700 * 80
-
-    df["dist"] = np.sqrt(
-        (df["x_carry_end"] - x_norm)**2 +
-        (df["y_carry_end"] - y_norm)**2
-    )
-
-    evento = df.loc[df["dist"].idxmin()]
-
-    evento_id = int(evento["id"])
-
-    with col2:
-        st.subheader(f"Evento {evento_id}")
-
-        video_path = f"videos/evento_{evento_id}.mp4"
-
-        if os.path.exists(video_path):
-            st.video(video_path)
-        else:
-            st.warning("Vídeo não encontrado")
+    if os.path.exists(video_path):
+        st.video(video_path)
+    else:
+        st.warning("Vídeo não encontrado")
