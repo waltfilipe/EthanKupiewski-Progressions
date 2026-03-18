@@ -112,16 +112,35 @@ def draw_pitch(df, selected_id):
 # ==========================
 # Layout
 # ==========================
-col1, col2 = st.columns([2,1])
+# ==========================
+# CAMPO (menor)
+# ==========================
+fig = draw_pitch(df, evento_selecionado)
 
-with col1:
-    fig = draw_pitch(df, evento_selecionado)
+buf = BytesIO()
+fig.savefig(buf, format="png", dpi=200, bbox_inches="tight")
+buf.seek(0)
 
-    buf = BytesIO()
-    fig.savefig(buf, format="png", dpi=200, bbox_inches="tight")
-    buf.seek(0)
+st.image(buf, width=600)  # controla tamanho na tela
 
-    st.image(buf)
+# ==========================
+# VÍDEO (maior, abaixo)
+# ==========================
+video_map = {
+    0: "Progression 1 LOW.mp4",
+    1: "Progression 2 LOW.mp4",
+    2: "Progression 3 LOW.mp4",
+    3: "Progression 4 LOW.mp4",
+    4: "Progression 4 LOW.mp4",
+}
+
+video_file = video_map.get(evento_selecionado)
+video_path = os.path.join("videos", video_file)
+
+if os.path.exists(video_path):
+    st.video(video_path)  # já ocupa largura total
+else:
+    st.warning("Vídeo não encontrado")
 
 # ==========================
 # Vídeo
