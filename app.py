@@ -50,7 +50,7 @@ def ordinal(n):
     return ["1st", "2nd", "3rd"][n-1] if n <= 3 else f"{n}th"
 
 evento_selecionado = st.selectbox(
-    "Selecione a Progression",
+    "Select the Progression",
     df["id"],
     format_func=lambda x: f"{ordinal(x+1)} Progression"
 )
