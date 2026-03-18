@@ -52,12 +52,29 @@ def ordinal(n):
 evento_selecionado = st.selectbox(
     "Select the Progression",
     df["id"],
-    format_func=lambda x: f"{ordinal(x+1)} Progression"
+    format_func=lambda x: (
+        "4th & 5th Progressions" if x in [3, 4]
+        else f"{ordinal(x+1)} Progression"
+    )
 )
+
+# ==========================
+# MAPA DE SELEÇÃO (AGRUPAMENTO)
+# ==========================
+selection_map = {
+    0: [0],
+    1: [1],
+    2: [2],
+    3: [3, 4],  # 4th e 5th juntas
+    4: [3, 4],  # garante comportamento igual
+}
+
+selected_ids = selection_map.get(evento_selecionado, [evento_selecionado])
+
 # ==========================
 # Função para desenhar campo
 # ==========================
-def draw_pitch(df, selected_id):
+def draw_pitch(df, selected_ids):
     pitch = Pitch(
         pitch_type='statsbomb',
         pitch_color='#f5f5f5',
@@ -68,7 +85,7 @@ def draw_pitch(df, selected_id):
 
     for _, row in df.iterrows():
 
-        is_selected = row["id"] == selected_id
+        is_selected = row["id"] in selected_ids
 
         # condução
         pitch.lines(
@@ -95,8 +112,8 @@ def draw_pitch(df, selected_id):
             ax=ax
         )
 
-    # ponto do evento selecionado
-    selected = df[df["id"] == selected_id]
+    # pontos dos eventos selecionados
+    selected = df[df["id"].isin(selected_ids)]
 
     pitch.scatter(
         selected.x_carry_end,
@@ -115,7 +132,7 @@ def draw_pitch(df, selected_id):
 col1, col2 = st.columns([2,1])
 
 with col1:
-    fig = draw_pitch(df, evento_selecionado)
+    fig = draw_pitch(df, selected_ids)
 
     buf = BytesIO()
     fig.savefig(buf, format="png", dpi=200, bbox_inches="tight")
@@ -128,12 +145,12 @@ with col1:
 # ==========================
 with col2:
     video_map = {
-    0: "Progression 1 LOW.mp4",
-    1: "Progression 2 LOW.mp4",
-    2: "Progression 3 LOW.mp4",
-    3: "Progression 4 LOW.mp4",
-    4: "Progression 4 LOW.mp4",
-}
+        0: "Progression 1 LOW.mp4",
+        1: "Progression 2 LOW.mp4",
+        2: "Progression 3 LOW.mp4",
+        3: "Progression 4 LOW.mp4",
+        4: "Progression 4 LOW.mp4",
+    }
 
     video_file = video_map.get(evento_selecionado)
 
