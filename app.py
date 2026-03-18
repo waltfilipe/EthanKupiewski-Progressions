@@ -7,7 +7,7 @@ from io import BytesIO
 import os
 
 st.set_page_config(layout="wide")
-st.title("Carry → Pass Map Interativo")
+st.title("Carry → Pass Map")
 
 # ==========================
 # Coordenadas (trios)
