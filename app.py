@@ -46,12 +46,14 @@ df = pd.DataFrame(dados)
 # ==========================
 # SELECTOR
 # ==========================
+def ordinal(n):
+    return ["1st", "2nd", "3rd"][n-1] if n <= 3 else f"{n}th"
+
 evento_selecionado = st.selectbox(
     "Selecione a Progression",
     df["id"],
-    format_func=lambda x: f"Progression {x}"
+    format_func=lambda x: f"{ordinal(x+1)} Progression"
 )
-
 # ==========================
 # Função para desenhar campo
 # ==========================
